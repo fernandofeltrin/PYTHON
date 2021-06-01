@@ -1,0 +1,6 @@
+num1 = 1987
+
+num1_hex = hex(num1)
+
+print(f'O número original é: {num1}')
+print(f'Sua forma hexadecimal é: {num1_hex}')
