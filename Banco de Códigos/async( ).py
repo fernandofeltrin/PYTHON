@@ -5,6 +5,5 @@ async def minha_funcao():
   await asyncio.sleep(1)
   print('world')
 
-  
 # Rodar o programa com:
 asyncio.run(minhafuncao())
