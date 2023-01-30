@@ -1,0 +1,11 @@
+import flet as ft
+
+def main(page: ft.Page):
+    imagem1 = ft.Image(src = f"https://picsum.photos/300/300",
+                       width = 300,
+                       height = 300,
+                       fit = ft.ImageFit.CONTAIN)
+    
+    page.add(imagem1)
+
+ft.app(target = main)
