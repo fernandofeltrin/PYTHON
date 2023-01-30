@@ -1,0 +1,25 @@
+import flet as ft
+
+def main(page: ft.Page):
+    page.title = 'Meu Programa'
+
+    def opcao_1(val):
+        opcao.value = f'Opção 1 selecionada'
+        page.update()
+    def opcao_2(val):
+        opcao.value = f'Opção 2 selecionada'
+        page.update()
+    def opcao_3(val):
+        opcao.value = f'Opção 3 selecionada'
+        page.update()
+    
+    opcao = ft.Text()
+    
+    menu1 = ft.PopupMenuButton(
+        items = [ft.PopupMenuItem(text = 'Opção 1', on_click = opcao_1),
+                 ft.PopupMenuItem(text = 'Opção 2', on_click = opcao_2),
+                 ft.PopupMenuItem(text = 'Opção 3', on_click = opcao_3)])
+    
+    page.add(menu1, opcao)
+
+ft.app(target = main)
