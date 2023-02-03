@@ -1,0 +1,12 @@
+import dash
+from dash import html
+
+app = dash.Dash()
+
+app.layout = html.Div(id = 'bloco1',
+                      [html.H2('Biblioteca Dash',
+                               style = {'color':'#FF0000',
+                                        'margin-top': '20px',
+                                        'margin-bottom': '20px'})])
+
+app.run()
