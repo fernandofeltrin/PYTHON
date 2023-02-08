@@ -1,0 +1,121 @@
+import dash
+from dash import html, dcc
+from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
+
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+
+sidebar = html.Div([
+    html.H2('Menu Principal'),
+    dbc.Nav([
+        dbc.NavLink('Agendar Consulta',
+                    href = '/agenda',
+                    active = 'exact'),
+        dbc.NavLink('Cadastro de Pacientes',
+                    href = '/cadastro',
+                    active = 'exact'),
+        dbc.NavLink('Prontuários',
+                    href = '/prontuarios',
+                    active = 'exact'),
+        dbc.NavLink('Administrativo',
+                    href = '/admin',
+                    active = 'exact')],
+            vertical = True,
+            pills = True)],
+                id = 'sidebar',
+                style = {'position': 'fixed',
+                         'top': 0,
+                         'left': 0,
+                         'bottom': 0,
+                         'width': 200,
+                         'padding': 5,
+                         'background-color': '#f8f9fa'})
+
+conteudo = html.Div(id = 'conteudo_pagina',
+                    style = {'margin-left':'18rem',
+                             'margin-right':'2rem',
+                             'padding':'2rem 1rem'})
+
+pag_agenda = html.Div([
+    html.H2('Agendamento de Consultas')
+], id = 'pagina-1')
+
+pag_cadastro = html.Div([
+    html.H2('Cadastro de Pacientes')
+], id = 'pagina-2')
+
+pag_prontuarios = html.Div([
+    html.H2('Prontuários'),
+    dbc.Row([html.Div([
+        dbc.Card(
+            dbc.CardBody([
+                html.P('Nome: '),
+                dcc.Input(id = 'entrada_01', type = 'text')],
+        id = 'cartao_1'))],
+            style = {'background-color':'white',
+                     'padding':'5px',
+                     'width':'350px',
+                     'height':'120px',
+                     'border':'3px solid powderblue',
+                     'margin':'10px'}),
+    html.P(),
+    html.Div(id = 'saida_01',
+        style = {'background-color':'lightblue',
+                'font-family':'verdana',
+                'font-size':'16px',
+                'padding':'10px',
+                'width':'400px',
+                'height':'100px',
+                'border':'20px solid powderblue',
+                'text-align':'center',
+                'margin':'10px'})]),
+], id = 'pagina-3')
+
+pag_admin = html.Div([
+    html.H2('Administrativo'),
+    dbc.Row([html.Div([
+        dcc.Tabs([dcc.Tab(label = 'Despesas', value = 'aba_01'),
+                  dcc.Tab(label = 'Receitas', value = 'aba_02')],
+            id = 'abas',
+            vertical = False,
+            value = 'aba_01',
+            style = {'background-color':'white',
+                     'padding':'5px',
+                     'width':'350px',
+                     'height':'70px',
+                     'margin':'10px'}),
+            html.Div(id = 'conteudo_aba')])]),
+], id = 'pagina-4')
+
+app.layout = html.Div([dcc.Location(id = 'url'),
+                       sidebar,
+                       conteudo])
+
+@app.callback(Output('conteudo_pagina', 'children'),
+              [Input('url', 'pathname')])
+def carrega_pagina(e):
+    if e == '/agenda':
+        return pag_agenda
+    elif e == '/cadastro':
+        return pag_cadastro
+    elif e == '/prontuarios':
+        return pag_prontuarios
+    elif e == '/admin':
+        return pag_admin
+    return html.P('Página não encontrada')
+
+@app.callback(Output('conteudo_aba', 'children'),
+              [Input('abas', 'value')])
+def alterna_aba(aba):
+    if aba == 'aba_01':
+        return html.Div(children = 'Conteúdo da Aba Despesas')
+    elif aba == 'aba_02':
+        return html.Div(children = 'Conteúdo da Aba Receitas')
+    return html.P('Página não encontrada')
+
+@app.callback(Output('saida_01', 'children'),
+              [Input('entrada_01', 'value')])
+def mostra_nome(e):
+    return f'O paciente {e} é cadastrado no sistema.'
+
+app.run()
