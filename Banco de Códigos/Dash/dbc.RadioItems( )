@@ -1,0 +1,191 @@
+import dash
+import pandas as pd
+from dash import html, dcc
+from dash.dependencies import Input, Output, State
+import dash_bootstrap_components as dbc
+
+app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+
+base = pd.DataFrame(columns = ['Nome', 'Idade', 'Gênero', 'Telefone', 'Plano'])
+
+def carrega_base():
+    try:
+        base_ = pd.read_excel('base_pacientes.xlsx')
+    except:
+        return None
+
+carrega_base()
+
+sidebar = html.Div([
+    html.H2('Menu Principal'),
+    dbc.Nav([
+        dbc.NavLink('Agendar Consulta',
+                    href = '/agenda',
+                    active = 'exact'),
+        dbc.NavLink('Cadastro de Pacientes',
+                    href = '/cadastro',
+                    active = 'exact'),
+        dbc.NavLink('Prontuários',
+                    href = '/prontuarios',
+                    active = 'exact'),
+        dbc.NavLink('Administrativo',
+                    href = '/admin',
+                    active = 'exact')],
+            vertical = True,
+            pills = True)],
+                id = 'sidebar',
+                style = {'position': 'fixed',
+                         'top': 0,
+                         'left': 0,
+                         'bottom': 0,
+                         'width': 200,
+                         'padding': 5,
+                         'background-color': '#f8f9fa'})
+
+conteudo = html.Div(id = 'conteudo_pagina',
+                    style = {'margin-left':'18rem',
+                             'margin-right':'2rem',
+                             'padding':'2rem 1rem'})
+
+pag_agenda = html.Div([
+    html.H2('Agendamento de Consultas')
+], id = 'pagina-1')
+
+pag_cadastro = html.Div([
+    dbc.Col([
+        html.Div([
+            html.H2('Cadastro de Pacientes'),
+            html.P(),
+            html.H6('Nome: '),
+            dcc.Input(id = 'entrada_nome', type = 'text'),
+            html.P(),
+            html.H6('Sexo: '),
+            dcc.Dropdown(id = 'seleciona_genero',
+                options = [{'label': 'Homem ', 'value': 'Homem'},
+                           {'label': 'Mulher ', 'value': 'Mulher'},
+                           {'label': 'Outro ', 'value': 'Outro'}],
+                value = 'Homem',
+                style = {'width':'190px'}),
+            html.P(),
+            html.H6('Idade: '),
+            dcc.Slider(id = 'slider_01', min = 0, max = 100, value = 0,
+                       marks = {i: f'{i} anos' for i in range(0,101,10)}),
+            html.P(),
+            html.H6('Telefone: '),
+            dcc.Input(id = 'entrada_telefone', type = 'number'),
+            html.P(),
+            html.H6('Plano de Saúde: '),
+            dbc.RadioItems(id = 'seleciona_plano',
+                options = [{'label': 'SUS', 'value': 'SUS'},
+                           {'label': 'Unimed', 'value': 'Unimed'},
+                           {'label': 'Cauzzo', 'value': 'Cauzzo'}],
+                value = 'SUS', inline = True),
+            html.P(),
+            dbc.Button('Cadastrar', id = 'botao_cadastrar', color = 'primary',
+                       n_clicks = 0),
+            html.Div(id = 'saida_cadastro')])])
+], id = 'pagina-2')
+
+pag_prontuarios = html.Div([
+    html.H2('Prontuários'),
+    dbc.Row([html.Div([
+        dbc.Card(
+            dbc.CardBody([
+                html.P('Nome: '),
+                dcc.Input(id = 'entrada_01', type = 'text')],
+        id = 'cartao_1'))],
+            style = {'background-color':'white',
+                     'padding':'5px',
+                     'width':'350px',
+                     'height':'120px',
+                     'border':'3px solid powderblue',
+                     'margin':'10px'}),
+    html.P(),
+    html.Div(id = 'saida_01',
+        style = {'background-color':'lightblue',
+                'font-family':'verdana',
+                'font-size':'16px',
+                'padding':'10px',
+                'width':'400px',
+                'height':'100px',
+                'border':'20px solid powderblue',
+                'text-align':'center',
+                'margin':'10px'})]),
+], id = 'pagina-3')
+
+pag_admin = html.Div([
+    html.H2('Administrativo'),
+    dbc.Row([html.Div([
+        dcc.Tabs([dcc.Tab(label = 'Despesas', value = 'aba_01'),
+                  dcc.Tab(label = 'Receitas', value = 'aba_02')],
+            id = 'abas',
+            vertical = False,
+            value = 'aba_01',
+            style = {'background-color':'white',
+                     'padding':'5px',
+                     'width':'350px',
+                     'height':'70px',
+                     'margin':'10px'}),
+            html.Div(id = 'conteudo_aba')])]),
+], id = 'pagina-4')
+
+app.layout = html.Div([dcc.Location(id = 'url'),
+                       sidebar,
+                       conteudo])
+
+@app.callback(Output('conteudo_pagina', 'children'),
+              [Input('url', 'pathname')])
+def carrega_pagina(e):
+    if e == '/agenda':
+        return pag_agenda
+    elif e == '/cadastro':
+        return pag_cadastro
+    elif e == '/prontuarios':
+        return pag_prontuarios
+    elif e == '/admin':
+        return pag_admin
+    return html.P('Página não encontrada')
+
+@app.callback(Output('saida_cadastro', 'children'),
+              [Input('botao_cadastrar', 'n_clicks')],
+              [State('entrada_nome', 'value'),
+               State('slider_01', 'value'),
+               State('seleciona_genero', 'value'),
+               State('entrada_telefone', 'value'),
+               State('seleciona_plano', 'value')])
+def cadastra(n_clicks, nome, idade, genero, telefone, plano):
+    global base
+    if nome and idade and genero and telefone and plano:
+        base = pd.DataFrame(base, columns = ['Nome', 'Idade', 'Gênero', 'Telefone', 'Plano'])
+        base.to_excel('base_pacientes.xlsx', index = False)
+        return html.P('Cadastro efetuado com sucesso!')
+
+@app.callback(Output('conteudo_aba', 'children'),
+              [Input('abas', 'value')])
+def alterna_aba(aba):
+    if aba == 'aba_01':
+        return html.Div(children = [html.Div([
+            html.Table([
+        html.Tr([html.Td(['Célula 1,1']),
+                 html.Td(['Célula 1,2'])]),
+        html.Tr([html.Td(['Célula 2,1']),
+                 html.Td(['Célula 2,2'])])],
+                 style = {'background-color':'powderblue',
+                          'font-family':'verdana',
+                          'font-size':'16px',
+                          'padding':'10px',
+                          'width':'400px',
+                          'height':'100px',
+                          'border':'5px solid lightblue',
+                          'text-align':'center',
+                          'margin':'10px'})])])
+    elif aba == 'aba_02':
+        return html.Div(children = 'Conteúdo da Aba Receitas')
+    return html.P('Página não encontrada')
+
+@app.callback(Output('saida_01', 'children'),
+              [Input('entrada_01', 'value')])
+def mostra_nome(e):
+    return f'O paciente {e} é cadastrado no sistema.'
+
+app.run()
