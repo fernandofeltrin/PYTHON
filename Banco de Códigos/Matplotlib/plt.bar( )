@@ -1,0 +1,17 @@
+import matplotlib.pyplot as plt
+
+plt.style.use('ggplot')
+
+times = ['Palmeiras', 'Santos', 'Corinthians', 'São Paulo', 'Flamengo']
+quant = [10, 8, 7, 6, 6]
+
+x_pos = [i for i, _ in enumerate(times)]
+
+plt.bar(x_pos, quant, color='green')
+plt.xlabel("Clubes")
+plt.ylabel("Campeonatos Brasileiros")
+plt.title("5 maiores vencedores do campeonato brasileiro de futebol")
+
+plt.xticks(x_pos, times)
+
+plt.show()
